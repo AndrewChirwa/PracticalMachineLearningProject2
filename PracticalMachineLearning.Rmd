@@ -1,0 +1,101 @@
+---
+title: "Practical Machine Learning: Prediction Assignment Writeup"
+author: "Andrew Chirwa"
+date: "July 22, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+### Background
+Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement - a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. In this project, our goal will be to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. 
+
+More information is available from the website here: [http://groupware.les.inf.puc-rio.br/har](http://groupware.les.inf.puc-rio.br/har) (see the section on the Weight Lifting Exercise Dataset).  
+
+### Data
+The training data for this project are available here:
+[https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv](https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv)
+
+The test data are available here: [https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv](https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv)
+
+### Prepare the datasets
+
+#### Load the required libraries
+```{r}
+library(caret)
+library(randomForest)
+library(rpart)
+library(rpart.plot)
+library(RColorBrewer)
+
+```
+#### Load the Traing and Test sets and perform some clean up
+
+Load data sets
+```{r}
+set.seed(1234)
+trainUrl <- "http://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
+testUrl <- "http://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"
+training <- read.csv(url(trainUrl), na.strings=c("NA","#DIV/0!",""))
+testing <- read.csv(url(testUrl), na.strings=c("NA","#DIV/0!",""))
+dim(training)
+dim(testing)
+```
+
+Remove the time stamp and ID colunms that are certainly not reuired in the candidate predictors
+```{r}
+training   <-training[,-c(1:7)]
+```
+
+Delete columns with all missing values
+```{r}
+training<-training[,colSums(is.na(training)) == 0]
+dim(training)
+```
+Partition data into training and validations sets
+```{r}
+inTrain <- createDataPartition(y=training$classe, p=0.75, list=FALSE)
+TrainingSet <- training[inTrain, ]
+ValidationSet <- training[-inTrain, ]
+dim(TrainingSet)
+dim(ValidationSet)
+```
+
+#### Train and test a couple of models
+
+Train and test a partion tree model.  Plot the model and calculate its accuracy by using a confusionMatrix.
+```{r}
+model1 <- rpart(classe ~ ., data=TrainingSet, method="class")
+prediction1 <- predict(model1, ValidationSet, type = "class")
+
+# Plot the Decision Tree
+rpart.plot(model1, main="Classification Tree", extra=102, under=TRUE, faclen=0)
+
+# Test results on our TestTrainingSet data set:
+confusionMatrix(prediction1, ValidationSet$classe)$overall['Accuracy']
+```
+
+Train a RandomForest model by using the training set.  Then validate the model using the validation data set. Finaly calculate its accuracy by using a confusionMatrix.
+```{r}
+model2 <- randomForest(classe ~. , data=TrainingSet, method="class")
+prediction2 <- predict(model2, ValidationSet, type = "class")
+confusionMatrix(prediction2, ValidationSet$classe)$overall['Accuracy']
+
+```
+### The selected Model.
+
+Since the RandomForest performance is so good, it will be the one selected as the final prediction mode,
+
+The expected out-of-sample error is estimated at 0.005, or 0.5%.
+
+### Apply the selected model to the test data set.
+
+Final results for the data set using the selected RandomForest Model.
+```{r}
+prediction3 <- predict(model2,testing, type = "class")
+prediction3
+
+```
+## Appendix
+The data for this project come from this source: [http://groupware.les.inf.puc-rio.br/har](http://groupware.les.inf.puc-rio.br/har). 
