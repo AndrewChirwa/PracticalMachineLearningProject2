@@ -81,9 +81,9 @@ Train a RandomForest model by using the training set.  Then validate the model u
 model2 <- randomForest(classe ~. , data=TrainingSet, method="class")
 prediction2 <- predict(model2, ValidationSet, type = "class")
 confusionMatrix(prediction2, ValidationSet$classe)$overall['Accuracy']
-
+##
 ```
-### The selected Model.
+### Model Selection.
 
 Since the RandomForest performance is so good, it will be the one selected as the final prediction mode,
 
@@ -94,8 +94,11 @@ The expected out-of-sample error is estimated at 0.005, or 0.5%.
 Final results for the data set using the selected RandomForest Model.
 ```{r}
 prediction3 <- predict(model2,testing, type = "class")
+
 prediction3
 
 ```
 ## Appendix
+
 The data for this project come from this source: [http://groupware.les.inf.puc-rio.br/har](http://groupware.les.inf.puc-rio.br/har). 
+

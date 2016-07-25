@@ -198,10 +198,11 @@ prediction2 &lt;- predict(model2, ValidationSet, type = &quot;class&quot;)
 confusionMatrix(prediction2, ValidationSet$classe)$overall['Accuracy']</code></pre>
 <pre><code>## Accuracy 
 ## 0.995106</code></pre>
+<pre class="r"><code>##</code></pre>
 </div>
 </div>
-<div id="the-selected-model." class="section level3">
-<h3>The selected Model.</h3>
+<div id="model-selection." class="section level3">
+<h3>Model Selection.</h3>
 <p>Since the RandomForest performance is so good, it will be the one selected as the final prediction mode,</p>
 <p>The expected out-of-sample error is estimated at 0.005, or 0.5%.</p>
 </div>
@@ -209,6 +210,7 @@ confusionMatrix(prediction2, ValidationSet$classe)$overall['Accuracy']</code></p
 <h3>Apply the selected model to the test data set.</h3>
 <p>Final results for the data set using the selected RandomForest Model.</p>
 <pre class="r"><code>prediction3 &lt;- predict(model2,testing, type = &quot;class&quot;)
+
 prediction3</code></pre>
 <pre><code>##  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 
 ##  B  A  B  A  A  E  D  B  A  A  B  C  B  A  E  E  A  B  B  B 
